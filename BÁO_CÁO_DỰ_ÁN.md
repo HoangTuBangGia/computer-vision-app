@@ -19,13 +19,14 @@
 1. [Giới thiệu](#1-giới-thiệu)
 2. [Cơ sở lý thuyết và Chức năng](#2-cơ-sở-lý-thuyết-và-chức-năng)
    - [2.1. Thao tác cơ bản](#21-thao-tác-cơ-bản)
-   - [2.2. Cải thiện ảnh trong miền không gian](#22-cải-thiện-ảnh-trong-miền-không-gian)
-   - [2.3. Cải thiện ảnh trong miền tần số](#23-cải-thiện-ảnh-trong-miền-tần-số)
-   - [2.4. Khôi phục ảnh](#24-khôi-phục-ảnh)
-   - [2.5. Xử lý hình thái học](#25-xử-lý-hình-thái-học)
-   - [2.6. Phân đoạn ảnh](#26-phân-đoạn-ảnh)
-   - [2.7. Nén ảnh](#27-nén-ảnh)
-   - [2.8. Nhận dạng khuôn mặt với PCA](#28-nhận-dạng-khuôn-mặt-với-pca)
+   - [2.2. Biến đổi hình học](#22-biến-đổi-hình-học-geometric-transformations)
+   - [2.3. Cải thiện ảnh trong miền không gian](#23-cải-thiện-ảnh-trong-miền-không-gian-spatial-domain-enhancement)
+   - [2.4. Cải thiện ảnh trong miền tần số](#24-cải-thiện-ảnh-trong-miền-tần-số-frequency-domain-enhancement)
+   - [2.5. Khôi phục ảnh](#25-khôi-phục-ảnh-image-restoration)
+   - [2.6. Xử lý hình thái học](#26-xử-lý-hình-thái-học-morphological-processing)
+   - [2.7. Phân đoạn ảnh](#27-phân-đoạn-ảnh-image-segmentation)
+   - [2.8. Nén ảnh](#28-nén-ảnh-image-compression)
+   - [2.9. Nhận dạng khuôn mặt với PCA](#29-nhận-dạng-khuôn-mặt-với-pca-face-recognition-using-pca)
 3. [Demo ứng dụng](#3-demo-ứng-dụng)
 4. [Công nghệ sử dụng](#4-công-nghệ-sử-dụng)
 5. [Kết luận](#5-kết-luận)
@@ -105,9 +106,52 @@ Trong đó $L$ là số mức xám (thường là 256).
 
 ---
 
-### 2.2. Cải thiện ảnh trong miền không gian (Spatial Domain Enhancement)
+### 2.2. Biến đổi hình học (Geometric Transformations)
 
-#### 2.2.1. Các phép biến đổi điểm ảnh (Point Operations)
+Các phép biến đổi hình học thay đổi vị trí không gian của các pixel trong ảnh.
+
+#### 2.2.1. Phép xoay (Rotation)
+
+Xoay ảnh quanh một điểm tâm với góc $\theta$:
+
+$$\begin{bmatrix} x' \\ y' \end{bmatrix} = \begin{bmatrix} \cos\theta & -\sin\theta \\ \sin\theta & \cos\theta \end{bmatrix} \begin{bmatrix} x \\ y \end{bmatrix}$$
+
+**Chức năng đã implement:**
+
+- Xoay ảnh với góc bất kỳ
+- Tùy chọn giữ nguyên kích thước hoặc mở rộng để chứa toàn bộ ảnh
+
+#### 2.2.2. Phép co giãn (Scaling)
+
+Thay đổi kích thước ảnh theo tỷ lệ:
+
+$$\begin{bmatrix} x' \\ y' \end{bmatrix} = \begin{bmatrix} s_x & 0 \\ 0 & s_y \end{bmatrix} \begin{bmatrix} x \\ y \end{bmatrix}$$
+
+- $s_x, s_y > 1$: Phóng to
+- $s_x, s_y < 1$: Thu nhỏ
+
+#### 2.2.3. Phép lật (Flip)
+
+- **Lật ngang (Horizontal Flip):** $x' = width - x - 1$
+- **Lật dọc (Vertical Flip):** $y' = height - y - 1$
+
+#### 2.2.4. Phép dịch chuyển (Translation)
+
+Dịch chuyển ảnh theo vector $(t_x, t_y)$:
+
+$$\begin{bmatrix} x' \\ y' \end{bmatrix} = \begin{bmatrix} x \\ y \end{bmatrix} + \begin{bmatrix} t_x \\ t_y \end{bmatrix}$$
+
+#### 2.2.5. Phép nghiêng (Shear)
+
+Biến đổi nghiêng theo trục x hoặc y:
+
+$$\begin{bmatrix} x' \\ y' \end{bmatrix} = \begin{bmatrix} 1 & sh_x \\ sh_y & 1 \end{bmatrix} \begin{bmatrix} x \\ y \end{bmatrix}$$
+
+---
+
+### 2.3. Cải thiện ảnh trong miền không gian (Spatial Domain Enhancement)
+
+#### 2.3.1. Các phép biến đổi điểm ảnh (Point Operations)
 
 **Phép âm bản (Negative):**
 $$s = (L - 1) - r$$
@@ -123,7 +167,17 @@ $$s = c \cdot r^{\gamma}$$
 - $\gamma < 1$: Làm sáng ảnh (mở rộng vùng tối)
 - $\gamma > 1$: Làm tối ảnh (nén vùng tối)
 
-#### 2.2.2. Bộ lọc tuyến tính (Linear Filters)
+**Điều chỉnh độ sáng (Brightness):**
+$$s = r + b$$
+
+Trong đó $b$ là giá trị điều chỉnh (-255 đến 255).
+
+**Điều chỉnh độ tương phản (Contrast):**
+$$s = 128 + c \cdot (r - 128)$$
+
+Trong đó $c$ là hệ số tương phản (0 đến 3).
+
+#### 2.3.2. Bộ lọc tuyến tính (Linear Filters)
 
 **Bộ lọc trung bình (Mean/Box Filter):**
 
@@ -139,13 +193,24 @@ $$G(x,y) = \frac{1}{2\pi\sigma^2} e^{-\frac{x^2+y^2}{2\sigma^2}}$$
 
 Bộ lọc Gaussian hiệu quả hơn bộ lọc trung bình trong việc bảo toàn cạnh.
 
-#### 2.2.3. Bộ lọc phi tuyến (Non-linear Filters)
+#### 2.3.3. Bộ lọc phi tuyến (Non-linear Filters)
 
 **Bộ lọc Median:**
 
 Thay thế mỗi pixel bằng giá trị trung vị của các pixel lân cận. Đặc biệt hiệu quả trong việc loại bỏ nhiễu muối tiêu (salt & pepper noise) trong khi vẫn bảo toàn cạnh tốt hơn các bộ lọc tuyến tính.
 
-#### 2.2.4. Làm sắc nét ảnh (Image Sharpening)
+**Bộ lọc Bilateral:**
+
+Bộ lọc bilateral kết hợp cả thông tin không gian và cường độ để làm mịn ảnh trong khi vẫn bảo toàn cạnh:
+
+$$g(x,y) = \frac{\sum_{(s,t)} f(s,t) \cdot w_s(x,y,s,t) \cdot w_r(f(x,y), f(s,t))}{\sum_{(s,t)} w_s \cdot w_r}$$
+
+Trong đó:
+
+- $w_s$: Trọng số không gian (Gaussian theo khoảng cách)
+- $w_r$: Trọng số cường độ (Gaussian theo độ chênh lệch màu)
+
+#### 2.3.4. Làm sắc nét ảnh (Image Sharpening)
 
 **Bộ lọc Laplacian:**
 
@@ -161,9 +226,9 @@ $$g(x,y) = f(x,y) + k \cdot [f(x,y) - f_{blur}(x,y)]$$
 
 ---
 
-### 2.3. Cải thiện ảnh trong miền tần số (Frequency Domain Enhancement)
+### 2.4. Cải thiện ảnh trong miền tần số (Frequency Domain Enhancement)
 
-#### 2.3.1. Biến đổi Fourier rời rạc (DFT)
+#### 2.4.1. Biến đổi Fourier rời rạc (DFT)
 
 Biến đổi Fourier 2D của ảnh $f(x,y)$ kích thước $M \times N$:
 
@@ -177,7 +242,7 @@ $$f(x,y) = \frac{1}{MN} \sum_{u=0}^{M-1} \sum_{v=0}^{N-1} F(u,v) e^{j2\pi(\frac{
 - Tính toán và hiển thị phổ biên độ (magnitude spectrum)
 - Dịch chuyển zero-frequency về tâm để dễ quan sát
 
-#### 2.3.2. Bộ lọc thông thấp (Low-pass Filters)
+#### 2.4.2. Bộ lọc thông thấp (Low-pass Filters)
 
 Loại bỏ các thành phần tần số cao, giữ lại tần số thấp → làm mịn ảnh.
 
@@ -192,7 +257,7 @@ $$H(u,v) = e^{-D^2(u,v)/2D_0^2}$$
 
 Trong đó $D(u,v)$ là khoảng cách từ điểm $(u,v)$ đến tâm, $D_0$ là tần số cắt.
 
-#### 2.3.3. Bộ lọc thông cao (High-pass Filters)
+#### 2.4.3. Bộ lọc thông cao (High-pass Filters)
 
 Loại bỏ các thành phần tần số thấp, giữ lại tần số cao → làm nổi bật cạnh và chi tiết.
 
@@ -206,9 +271,9 @@ $$H_{HP}(u,v) = 1 - H_{LP}(u,v)$$
 
 ---
 
-### 2.4. Khôi phục ảnh (Image Restoration)
+### 2.5. Khôi phục ảnh (Image Restoration)
 
-#### 2.4.1. Mô hình nhiễu (Noise Models)
+#### 2.5.1. Mô hình nhiễu (Noise Models)
 
 **Nhiễu đồng nhất (Uniform Noise):**
 $$p(z) = \frac{1}{b-a} \text{ với } a \leq z \leq b$$
@@ -225,7 +290,7 @@ $$p(z) = \frac{1}{\sqrt{2\pi}\sigma}e^{-(z-\mu)^2/2\sigma^2}$$
 **Nhiễu muối tiêu (Salt & Pepper):**
 $$p(z) = \begin{cases} P_a & \text{cho } z = a \\ P_b & \text{cho } z = b \\ 0 & \text{otherwise} \end{cases}$$
 
-#### 2.4.2. Bộ lọc trung bình (Mean Filters)
+#### 2.5.2. Bộ lọc trung bình (Mean Filters)
 
 **Trung bình số học (Arithmetic Mean):**
 $$\hat{f}(x,y) = \frac{1}{mn} \sum_{(s,t) \in S_{xy}} g(s,t)$$
@@ -239,7 +304,7 @@ $$\hat{f}(x,y) = \frac{mn}{\sum_{(s,t) \in S_{xy}} \frac{1}{g(s,t)}}$$
 **Trung bình nghịch điều hòa (Contra-harmonic Mean):**
 $$\hat{f}(x,y) = \frac{\sum_{(s,t) \in S_{xy}} g(s,t)^{Q+1}}{\sum_{(s,t) \in S_{xy}} g(s,t)^Q}$$
 
-#### 2.4.3. Bộ lọc thứ tự (Order-Statistics Filters)
+#### 2.5.3. Bộ lọc thứ tự (Order-Statistics Filters)
 
 - **Median Filter:** Giá trị trung vị
 - **Max Filter:** Giá trị lớn nhất (tốt cho nhiễu pepper)
@@ -247,38 +312,63 @@ $$\hat{f}(x,y) = \frac{\sum_{(s,t) \in S_{xy}} g(s,t)^{Q+1}}{\sum_{(s,t) \in S_{
 - **Midpoint Filter:** $(max + min) / 2$
 - **Alpha-trimmed Mean:** Loại bỏ $d/2$ giá trị lớn nhất và nhỏ nhất, tính trung bình phần còn lại
 
-#### 2.4.4. Bộ lọc thích nghi (Adaptive Filters)
+#### 2.5.4. Bộ lọc thích nghi (Adaptive Filters)
 
 **Bộ lọc thích nghi cục bộ (Local Adaptive Filter):**
 $$\hat{f}(x,y) = g(x,y) - \frac{\sigma_\eta^2}{\sigma_L^2}[g(x,y) - m_L]$$
 
 **Bộ lọc trung vị thích nghi (Adaptive Median):** Tự động điều chỉnh kích thước cửa sổ dựa trên đặc điểm nhiễu cục bộ.
 
+#### 2.5.5. Mô hình suy giảm và khôi phục (Degradation Models)
+
+**Nhòe chuyển động (Motion Blur):**
+
+Tạo kernel chuyển động theo chiều dài và góc cho trước.
+
+**Nhiễu loạn khí quyển (Atmospheric Turbulence):**
+$$H(u,v) = e^{-k(u^2 + v^2)^{5/6}}$$
+
+**Lọc nghịch đảo (Inverse Filter):**
+$$\hat{F}(u,v) = \frac{G(u,v)}{H(u,v)}$$
+
+**Lọc Wiener:**
+$$\hat{F}(u,v) = \frac{H^*(u,v)}{|H(u,v)|^2 + K} \cdot G(u,v)$$
+
+Trong đó $K$ là tỷ lệ nhiễu trên tín hiệu (NSR).
+
+#### 2.5.6. Bộ lọc Notch (Notch Filter)
+
+Loại bỏ nhiễu tuần hoàn tại các tần số cụ thể trong miền tần số. Bộ lọc chắn Notch được tạo bởi:
+
+$$H_{NR}(u,v) = \prod_{k=1}^{Q} H_k(u,v) \cdot H_{-k}(u,v)$$
+
+Trong đó mỗi $H_k$ là bộ lọc thông cao tập trung tại tần số nhiễu $(u_k, v_k)$ và điểm đối xứng $(-u_k, -v_k)$.
+
 ---
 
-### 2.5. Xử lý hình thái học (Morphological Processing)
+### 2.6. Xử lý hình thái học (Morphological Processing)
 
 Các phép toán hình thái học làm việc trên ảnh nhị phân (binary) hoặc grayscale với phần tử cấu trúc (structuring element - SE).
 
-#### 2.5.1. Phép co (Erosion)
+#### 2.6.1. Phép co (Erosion)
 
 $$A \ominus B = \{z | (B)_z \subseteq A\}$$
 
 Co làm thu nhỏ các vùng sáng, loại bỏ các chi tiết nhỏ.
 
-#### 2.5.2. Phép dãn (Dilation)
+#### 2.6.2. Phép dãn (Dilation)
 
 $$A \oplus B = \{z | (\hat{B})_z \cap A \neq \emptyset\}$$
 
 Dãn làm mở rộng các vùng sáng, lấp đầy các lỗ nhỏ.
 
-#### 2.5.3. Phép mở (Opening)
+#### 2.6.3. Phép mở (Opening)
 
 $$A \circ B = (A \ominus B) \oplus B$$
 
 Mở = Co rồi Dãn. Loại bỏ các chi tiết sáng nhỏ hơn SE trong khi giữ nguyên hình dạng tổng thể.
 
-#### 2.5.4. Phép đóng (Closing)
+#### 2.6.4. Phép đóng (Closing)
 
 $$A \bullet B = (A \oplus B) \ominus B$$
 
@@ -293,13 +383,13 @@ $$A \bullet B = (A \oplus B) \ominus B$$
 
 ---
 
-### 2.6. Phân đoạn ảnh (Image Segmentation)
+### 2.7. Phân đoạn ảnh (Image Segmentation)
 
-#### 2.6.1. Phân ngưỡng toàn cục (Global Thresholding)
+#### 2.7.1. Phân ngưỡng toàn cục (Global Thresholding)
 
 $$g(x,y) = \begin{cases} 1 & \text{if } f(x,y) > T \\ 0 & \text{if } f(x,y) \leq T \end{cases}$$
 
-#### 2.6.2. Phân ngưỡng Otsu (Otsu's Method)
+#### 2.7.2. Phân ngưỡng Otsu (Otsu's Method)
 
 Phương pháp Otsu tự động tìm ngưỡng tối ưu bằng cách tối đa hóa phương sai giữa các lớp (between-class variance):
 
@@ -307,11 +397,11 @@ $$\sigma_B^2(t) = \omega_0(t)\omega_1(t)[\mu_0(t) - \mu_1(t)]^2$$
 
 Ngưỡng tối ưu: $T^* = \arg\max_t \sigma_B^2(t)$
 
-#### 2.6.3. Phân ngưỡng thích nghi (Adaptive Thresholding)
+#### 2.7.3. Phân ngưỡng thích nghi (Adaptive Thresholding)
 
 Tính ngưỡng riêng cho từng vùng nhỏ trong ảnh, phù hợp với ảnh có độ sáng không đồng đều.
 
-#### 2.6.4. Phân cụm K-Means (K-Means Clustering)
+#### 2.7.4. Phân cụm K-Means (K-Means Clustering)
 
 Thuật toán phân cụm không giám sát chia ảnh thành $K$ vùng dựa trên đặc trưng màu sắc:
 
@@ -320,11 +410,23 @@ Thuật toán phân cụm không giám sát chia ảnh thành $K$ vùng dựa tr
 3. Cập nhật tâm cụm
 4. Lặp lại bước 2-3 đến khi hội tụ
 
+#### 2.7.5. Phân đoạn Watershed
+
+Thuật toán watershed xem ảnh như một bề mặt địa hình và "ngập nước" từ các điểm cực tiểu. Các đường phân thủy tạo thành biên giới giữa các vùng.
+
+#### 2.7.6. Phát triển vùng (Region Growing)
+
+Bắt đầu từ một điểm hạt giống (seed point), thuật toán mở rộng vùng bằng cách thêm các pixel lân cận có cường độ tương tự:
+
+- Kiểm tra 4-connected hoặc 8-connected neighbors
+- So sánh cường độ với ngưỡng cho phép
+- Lặp lại cho đến khi không còn pixel nào thỏa mãn
+
 ---
 
-### 2.7. Nén ảnh (Image Compression)
+### 2.8. Nén ảnh (Image Compression)
 
-#### 2.7.1. Nén không mất dữ liệu (Lossless Compression)
+#### 2.8.1. Nén không mất dữ liệu (Lossless Compression)
 
 **Mã hóa Huffman:**
 Xây dựng mã có độ dài thay đổi dựa trên tần suất xuất hiện của các ký hiệu. Ký hiệu xuất hiện nhiều hơn được gán mã ngắn hơn.
@@ -332,7 +434,7 @@ Xây dựng mã có độ dài thay đổi dựa trên tần suất xuất hiệ
 **Mã hóa Run-Length (RLC):**
 Biểu diễn chuỗi các giá trị giống nhau liên tiếp bằng cặp (giá trị, số lần lặp).
 
-#### 2.7.2. Nén mất dữ liệu - JPEG/DCT
+#### 2.8.2. Nén mất dữ liệu - JPEG/DCT
 
 Ứng dụng mô phỏng quy trình nén JPEG để giáo dục:
 
@@ -362,9 +464,9 @@ Sắp xếp các hệ số theo đường zig-zag để nhóm các hệ số g�
 
 ---
 
-### 2.8. Nhận dạng khuôn mặt với PCA (Face Recognition using PCA)
+### 2.9. Nhận dạng khuôn mặt với PCA (Face Recognition using PCA)
 
-#### 2.8.1. Phân tích thành phần chính (PCA)
+#### 2.9.1. Phân tích thành phần chính (PCA)
 
 PCA là kỹ thuật giảm chiều dữ liệu bằng cách tìm các hướng (principal components) có phương sai lớn nhất.
 
@@ -378,7 +480,7 @@ PCA là kỹ thuật giảm chiều dữ liệu bằng cách tìm các hướng 
 
 4. **Chọn K eigenvectors** tương ứng với K eigenvalues lớn nhất → **Eigenfaces**
 
-#### 2.8.2. Eigenfaces
+#### 2.9.2. Eigenfaces
 
 Eigenfaces là các eigenvector của ma trận hiệp phương sai, đại diện cho các đặc trưng cơ bản của khuôn mặt. Mỗi khuôn mặt có thể được biểu diễn như tổ hợp tuyến tính của các eigenfaces:
 
@@ -386,7 +488,7 @@ $$\Gamma = \Psi + \sum_{i=1}^{K} w_i u_i$$
 
 Trong đó $w_i$ là trọng số (weights) và $u_i$ là eigenface thứ $i$.
 
-#### 2.8.3. Tái tạo khuôn mặt (Face Reconstruction)
+#### 2.9.3. Tái tạo khuôn mặt (Face Reconstruction)
 
 Cho phép tái tạo khuôn mặt với số lượng thành phần chính khác nhau để quan sát:
 

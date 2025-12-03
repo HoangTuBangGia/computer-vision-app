@@ -36,7 +36,6 @@ _「那年冬天，以为同淋雪便可共白头」_
 
 - **Smoothing Filters | Bộ lọc làm mịn**: Gaussian, Median, Bilateral, Box blur | Làm mờ Gaussian, Trung vị, Bilateral, Box
 - **Sharpening | Làm sắc nét**: Laplacian, Unsharp masking | Laplacian, Mặt nạ unsharp
-- **Edge Detection | Phát hiện cạnh**: Sobel, Canny, Prewitt operators | Toán tử Sobel, Canny, Prewitt
 - **Custom Kernels | Kernel tùy chỉnh**: Apply user-defined convolution kernels | Áp dụng kernel tích chập tùy chỉnh
 - **Live Preview | Xem trước trực tiếp**: Real-time filter preview with adjustable parameters | Xem trước bộ lọc theo thời gian thực
 
