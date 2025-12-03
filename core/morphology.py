@@ -283,6 +283,55 @@ def black_hat(image: np.ndarray, kernel_size: int = 3,
     return cv2.morphologyEx(img, cv2.MORPH_BLACKHAT, kernel)
 
 
+def skeleton(image: np.ndarray, auto_binary: bool = True) -> np.ndarray:
+    """
+    Extract skeleton (medial axis) using morphological operations
+    
+    Skeletonization reduces objects to their medial axis while preserving
+    connectivity. Uses iterative erosion and opening.
+    
+    Algorithm:
+        skeleton = union of (eroded^k - opened^k) for all k until eroded^k = 0
+    
+    Args:
+        image: Input image
+        auto_binary: Automatically convert to binary first
+        
+    Returns:
+        Skeleton image
+    """
+    if auto_binary and len(image.shape) == 3:
+        img = to_binary(image)
+    else:
+        img = image.copy()
+    
+    # Ensure binary image
+    if img.max() > 1:
+        img = (img > 127).astype(np.uint8) * 255
+    
+    # Initialize skeleton
+    skel = np.zeros_like(img)
+    element = cv2.getStructuringElement(cv2.MORPH_CROSS, (3, 3))
+    
+    while True:
+        # Erode the image
+        eroded = cv2.erode(img, element)
+        # Open the eroded image
+        temp = cv2.dilate(eroded, element)
+        # Subtract to get the skeleton subset
+        temp = cv2.subtract(img, temp)
+        # Union with the skeleton
+        skel = cv2.bitwise_or(skel, temp)
+        # Set up for next iteration
+        img = eroded.copy()
+        
+        # If nothing left, we're done
+        if cv2.countNonZero(img) == 0:
+            break
+    
+    return skel
+
+
 def apply_morphology(image: np.ndarray, operation: str, kernel_size: int = 3,
                      shape: str = "rect", auto_binary: bool = True,
                      iterations: int = 1) -> np.ndarray:
@@ -310,6 +359,7 @@ def apply_morphology(image: np.ndarray, operation: str, kernel_size: int = 3,
         "gradient": lambda: gradient(image, kernel_size, shape, auto_binary),
         "tophat": lambda: top_hat(image, kernel_size, shape, auto_binary),
         "blackhat": lambda: black_hat(image, kernel_size, shape, auto_binary),
+        "skeleton": lambda: skeleton(image, auto_binary),
     }
     
     if operation in operations:

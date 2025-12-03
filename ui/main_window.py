@@ -594,20 +594,13 @@ class MainWindow(QMainWindow):
             iterations = params.get("iterations", 1)
             auto_binary = params.get("auto_binary", True)
             
-            # Convert to binary if auto_binary is enabled
-            if auto_binary:
-                work_image = morph_ops.to_binary(source_image)
-            else:
-                work_image = source_image.copy()
-                
-            # Get structuring element
-            se = morph_ops.get_structuring_element(shape, kernel_size)
-            
             # Apply operation
             result = morph_ops.apply_morphology(
-                work_image,
+                source_image,
                 operation=operation,
-                se=se,
+                kernel_size=kernel_size,
+                shape=shape,
+                auto_binary=auto_binary,
                 iterations=iterations
             )
             
@@ -621,6 +614,7 @@ class MainWindow(QMainWindow):
                 "opening": f"Opening ({kernel_size}x{kernel_size})",
                 "closing": f"Closing ({kernel_size}x{kernel_size})",
                 "boundary": f"Boundary Extraction ({kernel_size}x{kernel_size})",
+                "skeleton": "Skeleton (Medial Axis)",
                 "gradient": f"Morphological Gradient ({kernel_size}x{kernel_size})",
             }
             self._showStatus(f"Applied: {op_names.get(operation, operation)}")
@@ -1179,7 +1173,7 @@ class MainWindow(QMainWindow):
         Apply restoration operations
         
         Args:
-            operation: Type of operation (add_degradation, mean_filter, order_filter, etc.)
+            operation: Type of operation (add_uniform_noise, arithmetic_mean_filter, etc.)
             params: Operation parameters
         """
         if self.original_image is None:
@@ -1188,8 +1182,129 @@ class MainWindow(QMainWindow):
             
         try:
             source = self.working_image if self.working_image is not None else self.original_image
+            result = None
             
-            if operation == "add_degradation":
+            # Noise operations
+            if operation == "add_uniform_noise":
+                result = restore_ops.add_uniform_noise(
+                    source, 
+                    a=params.get("param_a", -50), 
+                    b=params.get("param_b", 50)
+                )
+                self.working_image = result.copy()
+                self._showStatus(f"Added Uniform noise (a={params.get('param_a')}, b={params.get('param_b')})")
+                
+            elif operation == "add_rayleigh_noise":
+                result = restore_ops.add_rayleigh_noise(
+                    source,
+                    a=params.get("param_a", 0),
+                    b=params.get("param_b", 50)
+                )
+                self.working_image = result.copy()
+                self._showStatus(f"Added Rayleigh noise")
+                
+            elif operation == "add_exponential_noise":
+                result = restore_ops.add_exponential_noise(
+                    source,
+                    scale=abs(params.get("param_b", 25))
+                )
+                self.working_image = result.copy()
+                self._showStatus(f"Added Exponential noise")
+                
+            # Mean filters
+            elif operation == "arithmetic_mean_filter":
+                kernel_size = params.get("kernel_size", 3)
+                result = restore_ops.arithmetic_mean_filter(source, kernel_size)
+                self._showStatus(f"Applied Arithmetic Mean ({kernel_size}x{kernel_size})")
+                
+            elif operation == "geometric_mean_filter":
+                kernel_size = params.get("kernel_size", 3)
+                result = restore_ops.geometric_mean_filter(source, kernel_size)
+                self._showStatus(f"Applied Geometric Mean ({kernel_size}x{kernel_size})")
+                
+            elif operation == "harmonic_mean_filter":
+                kernel_size = params.get("kernel_size", 3)
+                result = restore_ops.harmonic_mean_filter(source, kernel_size)
+                self._showStatus(f"Applied Harmonic Mean ({kernel_size}x{kernel_size})")
+                
+            elif operation == "contraharmonic_mean_filter":
+                kernel_size = params.get("kernel_size", 3)
+                Q = params.get("q", 1.5)
+                result = restore_ops.contraharmonic_mean_filter(source, kernel_size, Q)
+                self._showStatus(f"Applied Contra-harmonic Mean (Q={Q})")
+                
+            # Order-statistics filters
+            elif operation == "median_filter":
+                kernel_size = params.get("kernel_size", 3)
+                if kernel_size % 2 == 0:
+                    kernel_size += 1
+                result = cv2.medianBlur(source, kernel_size)
+                self._showStatus(f"Applied Median Filter ({kernel_size}x{kernel_size})")
+                
+            elif operation == "max_filter":
+                kernel_size = params.get("kernel_size", 3)
+                result = restore_ops.max_filter(source, kernel_size)
+                self._showStatus(f"Applied Max Filter ({kernel_size}x{kernel_size})")
+                
+            elif operation == "min_filter":
+                kernel_size = params.get("kernel_size", 3)
+                result = restore_ops.min_filter(source, kernel_size)
+                self._showStatus(f"Applied Min Filter ({kernel_size}x{kernel_size})")
+                
+            elif operation == "midpoint_filter":
+                kernel_size = params.get("kernel_size", 3)
+                result = restore_ops.midpoint_filter(source, kernel_size)
+                self._showStatus(f"Applied Midpoint Filter ({kernel_size}x{kernel_size})")
+                
+            elif operation == "alpha_trimmed_mean_filter":
+                kernel_size = params.get("kernel_size", 5)
+                d = params.get("d", 2)
+                result = restore_ops.alpha_trimmed_mean_filter(source, kernel_size, d)
+                self._showStatus(f"Applied Alpha-trimmed Mean (d={d})")
+                
+            # Adaptive filters
+            elif operation == "adaptive_local_noise_reduction":
+                kernel_size = params.get("kernel_size", 7)
+                result = restore_ops.adaptive_local_noise_reduction(source, kernel_size)
+                self._showStatus(f"Applied Adaptive Local Noise Reduction ({kernel_size}x{kernel_size})")
+                
+            elif operation == "adaptive_median_filter":
+                kernel_size = params.get("kernel_size", 7)
+                result = restore_ops.adaptive_median_filter(source, kernel_size)
+                self._showStatus(f"Applied Adaptive Median Filter (max={kernel_size})")
+                
+            # Degradation models
+            elif operation == "apply_motion_blur":
+                length = params.get("length", 15)
+                angle = params.get("angle", 0)
+                result = restore_ops.apply_motion_blur(source, length, angle)
+                self.working_image = result.copy()
+                self._showStatus(f"Applied Motion blur (L={length}, θ={angle}°)")
+                
+            elif operation == "apply_atmospheric_blur":
+                k = params.get("k", 0.001)
+                result = restore_ops.apply_atmospheric_blur(source, k)
+                self.working_image = result.copy()
+                self._showStatus(f"Applied Atmospheric blur (k={k})")
+                
+            # Restoration
+            elif operation == "restore_motion_blur":
+                length = params.get("length", 15)
+                angle = params.get("angle", 0)
+                method = params.get("method", "wiener")
+                K = params.get("K", 0.01)
+                result = restore_ops.restore_motion_blur(source, length, angle, method, K)
+                self._showStatus(f"Restored motion blur ({method})")
+                
+            elif operation == "restore_atmospheric_blur":
+                k = params.get("k", 0.001)
+                method = params.get("method", "wiener")
+                K = params.get("K", 0.01)
+                result = restore_ops.restore_atmospheric_blur(source, k, method, K)
+                self._showStatus(f"Restored atmospheric blur ({method})")
+                
+            # Legacy operations (keep for compatibility)
+            elif operation == "add_degradation":
                 result = self._addDegradation(params)
             elif operation == "mean_filter":
                 result = self._applyMeanFilter(source, params)

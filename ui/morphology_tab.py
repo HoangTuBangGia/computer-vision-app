@@ -307,6 +307,7 @@ class MorphologyTab(QWidget):
             ("Opening", "fa5s.door-open", "#3498db", "opening"),
             ("Closing", "fa5s.door-closed", "#9b59b6", "closing"),
             ("Boundary", "fa5s.border-style", "#f39c12", "boundary"),
+            ("Skeleton", "fa5s.bone", "#e91e63", "skeleton"),
             ("Gradient", "fa5s.wave-square", "#1abc9c", "gradient"),
         ]
         
@@ -316,7 +317,7 @@ class MorphologyTab(QWidget):
             btn.setProperty("operation", op_id)
             btn.clicked.connect(lambda checked, op=op_id: self._onOperationClicked(op))
             self.op_buttons[op_id] = btn
-            grid.addWidget(btn, i // 2, i % 2)
+            grid.addWidget(btn, i // 3, i % 3)
             
         layout.addLayout(grid)
         
@@ -351,6 +352,7 @@ class MorphologyTab(QWidget):
             "• Opening: Removes noise\n"
             "• Closing: Fills holes\n"
             "• Boundary: Edge extraction\n"
+            "• Skeleton: Medial axis\n"
             "• Gradient: Edge highlight"
         )
         self.info_label.setWordWrap(True)
@@ -380,6 +382,7 @@ class MorphologyTab(QWidget):
             "opening": "Opening = Erosion → Dilation\nUses: Remove small bright spots while preserving shape.",
             "closing": "Closing = Dilation → Erosion\nUses: Fill small holes and gaps while preserving shape.",
             "boundary": "Boundary = Original - Erosion\nExtracts object boundaries/edges.",
+            "skeleton": "Skeleton extracts medial axis.\nReduces objects to thin lines while preserving connectivity.",
             "gradient": "Gradient = Dilation - Erosion\nHighlights object edges with thickness.",
         }
         self.info_label.setText(info_texts.get(operation, ""))
