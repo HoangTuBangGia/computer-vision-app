@@ -23,6 +23,7 @@ from core import frequency as freq_ops
 from core import segmentation as seg_ops
 from core import compression as compress_ops
 from core import geometry as geom_ops
+from core import restoration as restore_ops
 from core.pca import PCAFaceRecognizer
 from core.worker import Worker, WorkerManager, create_kmeans_task, create_fft_task, create_compression_task
 
@@ -225,6 +226,9 @@ class MainWindow(QMainWindow):
         self.control_panel.resizeRequested.connect(self._resizeImage)
         self.control_panel.flipRequested.connect(self._flipImage)
         self.control_panel.geometryResetRequested.connect(self._resetImage)
+        
+        # Restoration signals
+        self.control_panel.restorationRequested.connect(self._applyRestoration)
         
         # Image viewer click for compression block analysis
         self.image_viewer.originalImageClicked.connect(self._onOriginalImageClicked)
@@ -1165,3 +1169,196 @@ class MainWindow(QMainWindow):
         pixmap = self._cvImageToQPixmap(rgb_image)
         self.image_viewer.setProcessedImage(pixmap)
         self.control_panel.enableSaveButton(True)
+
+    # ============================================================
+    # RESTORATION OPERATIONS
+    # ============================================================
+    
+    def _applyRestoration(self, operation: str, params: dict):
+        """
+        Apply restoration operations
+        
+        Args:
+            operation: Type of operation (add_degradation, mean_filter, order_filter, etc.)
+            params: Operation parameters
+        """
+        if self.original_image is None:
+            QMessageBox.warning(self, "Warning", "Please load an image first!")
+            return
+            
+        try:
+            source = self.working_image if self.working_image is not None else self.original_image
+            
+            if operation == "add_degradation":
+                result = self._addDegradation(params)
+            elif operation == "mean_filter":
+                result = self._applyMeanFilter(source, params)
+            elif operation == "order_filter":
+                result = self._applyOrderFilter(source, params)
+            elif operation == "adaptive_filter":
+                result = self._applyAdaptiveFilter(source, params)
+            elif operation == "restore_image":
+                result = self._restoreImage(source, params)
+            else:
+                self._showStatus(f"Unknown operation: {operation}")
+                return
+                
+            if result is not None:
+                self.processed_image = result
+                self._displayProcessedImage(result)
+                
+        except Exception as e:
+            self._showStatus(f"Error: {str(e)}")
+            
+    def _addDegradation(self, params: dict) -> np.ndarray:
+        """Add noise or blur degradation to image"""
+        source = self.original_image.copy()
+        deg_type = params.get("type", "gaussian")
+        
+        if deg_type == "gaussian":
+            from core.filters import add_gaussian_noise
+            result = add_gaussian_noise(
+                source,
+                mean=params.get("mean", 0),
+                sigma=params.get("sigma", 25)
+            )
+            self._showStatus(f"Added Gaussian noise (σ={params.get('sigma', 25)})")
+            
+        elif deg_type == "salt_pepper":
+            from core.filters import add_salt_pepper_noise
+            result = add_salt_pepper_noise(
+                source,
+                salt_prob=params.get("salt_prob", 0.02),
+                pepper_prob=params.get("pepper_prob", 0.02)
+            )
+            self._showStatus(f"Added Salt & Pepper noise")
+            
+        elif deg_type == "uniform":
+            result = restore_ops.add_uniform_noise(
+                source,
+                a=params.get("a", -50),
+                b=params.get("b", 50)
+            )
+            self._showStatus(f"Added Uniform noise")
+            
+        elif deg_type == "motion_blur":
+            result = restore_ops.apply_motion_blur(
+                source,
+                length=params.get("length", 15),
+                angle=params.get("angle", 0)
+            )
+            self._showStatus(f"Applied Motion blur (L={params.get('length', 15)}, θ={params.get('angle', 0)}°)")
+            
+        elif deg_type == "atmospheric":
+            result = restore_ops.apply_atmospheric_blur(
+                source,
+                k=params.get("k", 0.001)
+            )
+            self._showStatus(f"Applied Atmospheric blur (k={params.get('k', 0.001)})")
+        else:
+            result = source
+            
+        # Store for filtering
+        self.working_image = result.copy()
+        return result
+        
+    def _applyMeanFilter(self, source: np.ndarray, params: dict) -> np.ndarray:
+        """Apply mean-type filters"""
+        filter_type = params.get("filter_type", "arithmetic")
+        kernel_size = params.get("kernel_size", 3)
+        
+        if filter_type == "arithmetic":
+            result = restore_ops.arithmetic_mean_filter(source, kernel_size)
+            self._showStatus(f"Applied Arithmetic Mean ({kernel_size}x{kernel_size})")
+            
+        elif filter_type == "geometric":
+            result = restore_ops.geometric_mean_filter(source, kernel_size)
+            self._showStatus(f"Applied Geometric Mean ({kernel_size}x{kernel_size})")
+            
+        elif filter_type == "harmonic":
+            result = restore_ops.harmonic_mean_filter(source, kernel_size)
+            self._showStatus(f"Applied Harmonic Mean ({kernel_size}x{kernel_size})")
+            
+        elif filter_type == "contraharmonic":
+            Q = params.get("Q", 1.5)
+            result = restore_ops.contraharmonic_mean_filter(source, kernel_size, Q)
+            self._showStatus(f"Applied Contra-harmonic Mean (Q={Q})")
+        else:
+            result = source
+            
+        return result
+        
+    def _applyOrderFilter(self, source: np.ndarray, params: dict) -> np.ndarray:
+        """Apply order-statistics filters"""
+        filter_type = params.get("filter_type", "median")
+        kernel_size = params.get("kernel_size", 3)
+        
+        if filter_type == "median":
+            result = cv2.medianBlur(source, kernel_size)
+            self._showStatus(f"Applied Median Filter ({kernel_size}x{kernel_size})")
+            
+        elif filter_type == "max":
+            result = restore_ops.max_filter(source, kernel_size)
+            self._showStatus(f"Applied Max Filter ({kernel_size}x{kernel_size})")
+            
+        elif filter_type == "min":
+            result = restore_ops.min_filter(source, kernel_size)
+            self._showStatus(f"Applied Min Filter ({kernel_size}x{kernel_size})")
+            
+        elif filter_type == "midpoint":
+            result = restore_ops.midpoint_filter(source, kernel_size)
+            self._showStatus(f"Applied Midpoint Filter ({kernel_size}x{kernel_size})")
+            
+        elif filter_type == "alpha_trimmed":
+            d = params.get("d", 4)
+            result = restore_ops.alpha_trimmed_mean_filter(source, kernel_size, d)
+            self._showStatus(f"Applied Alpha-trimmed Mean (d={d})")
+        else:
+            result = source
+            
+        return result
+        
+    def _applyAdaptiveFilter(self, source: np.ndarray, params: dict) -> np.ndarray:
+        """Apply adaptive filters"""
+        filter_type = params.get("filter_type", "local_noise")
+        kernel_size = params.get("kernel_size", 7)
+        
+        if filter_type == "local_noise":
+            result = restore_ops.adaptive_local_noise_reduction(source, kernel_size)
+            self._showStatus(f"Applied Adaptive Local Noise Reduction ({kernel_size}x{kernel_size})")
+            
+        elif filter_type == "adaptive_median":
+            result = restore_ops.adaptive_median_filter(source, kernel_size)
+            self._showStatus(f"Applied Adaptive Median Filter (max={kernel_size})")
+        else:
+            result = source
+            
+        return result
+        
+    def _restoreImage(self, source: np.ndarray, params: dict) -> np.ndarray:
+        """Apply deconvolution/restoration"""
+        model = params.get("model", "motion")
+        method = params.get("method", "wiener")
+        
+        if model == "motion":
+            length = params.get("length", 15)
+            angle = params.get("angle", 0)
+            K = params.get("K", 0.01)
+            
+            result = restore_ops.restore_motion_blur(
+                source, length, angle, method, K
+            )
+            self._showStatus(f"Restored motion blur ({method}, L={length}, θ={angle}°)")
+            
+        elif model == "atmospheric":
+            k = params.get("k_atmos", 0.001)
+            K = params.get("K", 0.01)
+            
+            result = restore_ops.restore_atmospheric_blur(
+                source, k, method, K
+            )
+            self._showStatus(f"Restored atmospheric blur ({method}, k={k})")
+        else:
+            result = source
+            
+        return result

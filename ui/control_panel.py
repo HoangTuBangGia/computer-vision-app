@@ -17,6 +17,7 @@ from .segmentation_tab import SegmentationTab
 from .pca_tab import PCATab
 from .compression_tab import CompressionTab
 from .geometry_tab import GeometryTab
+from .restoration_tab import RestorationTab
 
 
 class StyledButton(QPushButton):
@@ -119,6 +120,7 @@ class ControlPanel(QWidget):
     resizeRequested = Signal(int, int)  # width, height
     flipRequested = Signal(str)  # 'horizontal', 'vertical', 'both'
     geometryResetRequested = Signal()
+    restorationRequested = Signal(str, dict)  # operation, params
     
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -311,6 +313,12 @@ class ControlPanel(QWidget):
         self.geometry_tab.resetRequested.connect(self.geometryResetRequested.emit)
         icon_geometry = qta.icon('fa5s.expand-arrows-alt', color='#888888')
         tabs.addTab(self.geometry_tab, icon_geometry, "Geometry")
+        
+        # Restoration tab (fully implemented)
+        self.restoration_tab = RestorationTab()
+        self.restoration_tab.operationRequested.connect(self.restorationRequested.emit)
+        icon_restore = qta.icon('fa5s.magic', color='#888888')
+        tabs.addTab(self.restoration_tab, icon_restore, "Restore")
             
         return tabs
         
@@ -393,3 +401,7 @@ class ControlPanel(QWidget):
     def getGeometryTab(self) -> GeometryTab:
         """Get reference to Geometry tab"""
         return self.geometry_tab
+
+    def getRestorationTab(self) -> RestorationTab:
+        """Get reference to Restoration tab"""
+        return self.restoration_tab

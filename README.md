@@ -83,6 +83,15 @@ _「那年冬天，以为同淋雪便可共白头」_
 - **Resize | Thay đổi kích thước**: Resize to specific dimensions | Thay đổi đến kích thước cụ thể
 - **Flip | Lật**: Horizontal, Vertical, or Both | Ngang, Dọc, hoặc Cả hai
 
+### 🔧 Image Restoration | Khôi phục ảnh
+
+- **Noise Models | Mô hình nhiễu**: Uniform, Rayleigh, Exponential | Nhiễu Đồng nhất, Rayleigh, Hàm mũ
+- **Degradation Models | Mô hình suy giảm**: Motion blur, Atmospheric turbulence | Nhòe chuyển động, Nhiễu loạn khí quyển
+- **Mean Filters | Bộ lọc trung bình**: Arithmetic, Geometric, Harmonic, Contra-harmonic | Số học, Hình học, Điều hòa, Nghịch điều hòa
+- **Order-Statistics Filters | Bộ lọc thứ tự**: Median, Max, Min, Midpoint, Alpha-trimmed | Trung vị, Cực đại, Cực tiểu, Trung điểm, Cắt alpha
+- **Adaptive Filters | Bộ lọc thích nghi**: Local noise reduction, Adaptive median | Giảm nhiễu cục bộ, Trung vị thích nghi
+- **Deconvolution | Khử chập**: Inverse filtering, Wiener filtering | Lọc nghịch đảo, Lọc Wiener
+
 ### 🖼️ Advanced Viewer | Trình xem nâng cao
 
 - **Zoom & Pan | Thu phóng & Kéo**: Mouse wheel zoom, drag to pan | Cuộn chuột để zoom, kéo để di chuyển
@@ -206,6 +215,7 @@ computer-vision-app/
 │   ├── pca.py             # PCA face recognition | Nhận dạng khuôn mặt PCA
 │   ├── compression.py     # JPEG compression simulation | Mô phỏng nén JPEG
 │   ├── geometry.py        # Geometric transformations | Biến đổi hình học
+│   ├── restoration.py     # Image restoration | Khôi phục ảnh (Wiener, Inverse filter)
 │   └── worker.py          # Background thread worker | Worker chạy nền
 │
 ├── ui/                     # User interface modules | Module giao diện người dùng
@@ -219,7 +229,8 @@ computer-vision-app/
 │   ├── segmentation_tab.py# Segmentation tab | Tab phân đoạn
 │   ├── pca_tab.py         # PCA face recognition tab | Tab nhận dạng khuôn mặt PCA
 │   ├── compression_tab.py # JPEG compression tab | Tab nén JPEG
-│   └── geometry_tab.py    # Geometric transforms tab | Tab biến đổi hình học
+│   ├── geometry_tab.py    # Geometric transforms tab | Tab biến đổi hình học
+│   └── restoration_tab.py # Image restoration tab | Tab khôi phục ảnh
 │
 ├── data/                   # Sample datasets | Bộ dữ liệu mẫu
 │   └── archive/           # ORL face database (40 subjects) | CSDL khuôn mặt ORL (40 người)
