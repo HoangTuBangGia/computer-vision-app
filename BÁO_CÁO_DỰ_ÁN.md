@@ -38,7 +38,7 @@
 
 ### 1.1. Lý do chọn đề tài
 
-Trong quá trình học tập môn **Xử lý ảnh và Thị giác máy tính** (Image Processing & Computer Vision), em nhận thấy rằng các kiến thức lý thuyết được giảng dạy trên lớp rất phong phú và sâu rộng. Tuy nhiên, việc chỉ học lý thuyết mà không có thực hành sẽ khiến kiến thức trở nên trừu tượng và khó nhớ. Chính vì vậy, em đã quyết định xây dựng một ứng dụng hoàn chỉnh để:
+Trong quá trình học tập môn **Thị giác máy tính** (Computer Vision), em nhận thấy rằng các kiến thức lý thuyết được giảng dạy trên lớp rất phong phú và sâu rộng. Tuy nhiên, việc chỉ học lý thuyết mà không có thực hành sẽ khiến kiến thức trở nên trừu tượng và khó nhớ. Chính vì vậy, em đã quyết định xây dựng một ứng dụng hoàn chỉnh để:
 
 - **Củng cố kiến thức:** Việc tự tay implement các thuật toán giúp hiểu sâu hơn về nguyên lý hoạt động của từng kỹ thuật xử lý ảnh.
 - **Trực quan hóa kết quả:** Một ứng dụng có giao diện đồ họa (GUI) cho phép quan sát trực tiếp tác động của các tham số lên hình ảnh, từ đó nắm bắt được ý nghĩa thực tiễn của các công thức toán học.
