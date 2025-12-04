@@ -2,7 +2,7 @@
 
 ## **ỨNG DỤNG XỬ LÝ ẢNH VÀ THỊ GIÁC MÁY TÍNH**
 
-### _Computer Vision Application - Eagle Eye CV Master_
+### _Computer Vision Application_
 
 ---
 
