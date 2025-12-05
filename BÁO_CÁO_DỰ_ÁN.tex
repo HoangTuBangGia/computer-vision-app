@@ -86,9 +86,6 @@
     \centering
     \vspace*{1cm}
     
-    \textbf{\Large TRƯỜNG ĐẠI HỌC VIỆT NHẬT}\\[0.5cm]
-    \textbf{\large Khoa Công nghệ và Kỹ thuật tiên tiến}\\[2cm]
-    
     \rule{\linewidth}{0.5mm}\\[0.4cm]
     {\huge\bfseries BÁO CÁO DỰ ÁN}\\[0.2cm]
     \rule{\linewidth}{0.5mm}\\[1.5cm]
@@ -170,6 +167,12 @@ Trong đó $n_k$ là số lượng pixel có giá trị cường độ $r_k$.
 \end{equation}
 với $M \times N$ là kích thước ảnh.
 
+\textbf{Chức năng đã implement:}
+\begin{itemize}
+    \item Hiển thị và phân tích histogram của ảnh
+    \item Hỗ trợ cả ảnh grayscale và ảnh màu (hiển thị histogram cho từng kênh)
+\end{itemize}
+
 \subsection{Cân bằng Histogram (Histogram Equalization)}
 
 Cân bằng histogram nhằm tăng cường độ tương phản của ảnh bằng cách làm phẳng phân bố histogram. Công thức biến đổi:
@@ -186,6 +189,8 @@ Trong đó $L$ là số mức xám (thường là 256).
     \item \textbf{Lượng tử hóa (Quantization):} Quyết định số mức xám được sử dụng để biểu diễn ảnh
 \end{itemize}
 
+Ứng dụng hỗ trợ thay đổi độ phân giải (resize) và quan sát tác động của việc giảm số mức xám.
+
 \section{Biến đổi hình học (Geometric Transformations)}
 
 Các phép biến đổi hình học thay đổi vị trí không gian của các pixel trong ảnh.
@@ -196,6 +201,12 @@ Xoay ảnh quanh một điểm tâm với góc $\theta$:
 \begin{equation}
     \begin{bmatrix} x' \\ y' \end{bmatrix} = \begin{bmatrix} \cos\theta & -\sin\theta \\ \sin\theta & \cos\theta \end{bmatrix} \begin{bmatrix} x \\ y \end{bmatrix}
 \end{equation}
+
+\textbf{Chức năng đã implement:}
+\begin{itemize}
+    \item Xoay ảnh với góc bất kỳ
+    \item Tùy chọn giữ nguyên kích thước hoặc mở rộng để chứa toàn bộ ảnh
+\end{itemize}
 
 \subsection{Phép co giãn (Scaling)}
 
@@ -230,7 +241,7 @@ Biến đổi nghiêng theo trục x hoặc y:
     \begin{bmatrix} x' \\ y' \end{bmatrix} = \begin{bmatrix} 1 & sh_x \\ sh_y & 1 \end{bmatrix} \begin{bmatrix} x \\ y \end{bmatrix}
 \end{equation}
 
-\section{Cải thiện ảnh trong miền không gian}
+\section{Cải thiện ảnh trong miền không gian (Spatial Domain Enhancement)}
 
 \subsection{Các phép biến đổi điểm ảnh (Point Operations)}
 
@@ -284,16 +295,26 @@ Sử dụng kernel Gaussian để làm mịn ảnh:
     G(x,y) = \frac{1}{2\pi\sigma^2} e^{-\frac{x^2+y^2}{2\sigma^2}}
 \end{equation}
 
+Bộ lọc Gaussian hiệu quả hơn bộ lọc trung bình trong việc bảo toàn cạnh.
+
 \subsection{Bộ lọc phi tuyến (Non-linear Filters)}
 
-\textbf{Bộ lọc Median:} Thay thế mỗi pixel bằng giá trị trung vị của các pixel lân cận. Đặc biệt hiệu quả trong việc loại bỏ nhiễu muối tiêu (salt \& pepper noise).
+\textbf{Bộ lọc Median:}
+
+Thay thế mỗi pixel bằng giá trị trung vị của các pixel lân cận. Đặc biệt hiệu quả trong việc loại bỏ nhiễu muối tiêu (salt \& pepper noise) trong khi vẫn bảo toàn cạnh tốt hơn các bộ lọc tuyến tính.
 
 \textbf{Bộ lọc Bilateral:}
 
-Bộ lọc bilateral kết hợp cả thông tin không gian và cường độ:
+Bộ lọc bilateral kết hợp cả thông tin không gian và cường độ để làm mịn ảnh trong khi vẫn bảo toàn cạnh:
 \begin{equation}
     g(x,y) = \frac{\sum_{(s,t)} f(s,t) \cdot w_s(x,y,s,t) \cdot w_r(f(x,y), f(s,t))}{\sum_{(s,t)} w_s \cdot w_r}
 \end{equation}
+
+Trong đó:
+\begin{itemize}
+    \item $w_s$: Trọng số không gian (Gaussian theo khoảng cách)
+    \item $w_r$: Trọng số cường độ (Gaussian theo độ chênh lệch màu)
+\end{itemize}
 
 \subsection{Làm sắc nét ảnh (Image Sharpening)}
 
@@ -314,7 +335,7 @@ Kernel Laplacian phổ biến:
     g(x,y) = f(x,y) + k \cdot [f(x,y) - f_{blur}(x,y)]
 \end{equation}
 
-\section{Cải thiện ảnh trong miền tần số}
+\section{Cải thiện ảnh trong miền tần số (Frequency Domain Enhancement)}
 
 \subsection{Biến đổi Fourier rời rạc (DFT)}
 
@@ -328,7 +349,15 @@ Biến đổi ngược:
     f(x,y) = \frac{1}{MN} \sum_{u=0}^{M-1} \sum_{v=0}^{N-1} F(u,v) e^{j2\pi(\frac{ux}{M} + \frac{vy}{N})}
 \end{equation}
 
+\textbf{Chức năng đã implement:}
+\begin{itemize}
+    \item Tính toán và hiển thị phổ biên độ (magnitude spectrum)
+    \item Dịch chuyển zero-frequency về tâm để dễ quan sát
+\end{itemize}
+
 \subsection{Bộ lọc thông thấp (Low-pass Filters)}
+
+Loại bỏ các thành phần tần số cao, giữ lại tần số thấp $\rightarrow$ làm mịn ảnh.
 
 \textbf{Bộ lọc lý tưởng (Ideal LPF):}
 \begin{equation}
@@ -345,11 +374,22 @@ Biến đổi ngược:
     H(u,v) = e^{-D^2(u,v)/2D_0^2}
 \end{equation}
 
+Trong đó $D(u,v)$ là khoảng cách từ điểm $(u,v)$ đến tâm, $D_0$ là tần số cắt.
+
 \subsection{Bộ lọc thông cao (High-pass Filters)}
+
+Loại bỏ các thành phần tần số thấp, giữ lại tần số cao $\rightarrow$ làm nổi bật cạnh và chi tiết.
 
 \begin{equation}
     H_{HP}(u,v) = 1 - H_{LP}(u,v)
 \end{equation}
+
+\textbf{Các loại bộ lọc thông cao đã implement:}
+\begin{itemize}
+    \item Ideal High-pass Filter
+    \item Butterworth High-pass Filter
+    \item Gaussian High-pass Filter
+\end{itemize}
 
 \section{Khôi phục ảnh (Image Restoration)}
 
@@ -423,7 +463,9 @@ Biến đổi ngược:
 
 \subsection{Mô hình suy giảm và khôi phục (Degradation Models)}
 
-\textbf{Nhòe chuyển động (Motion Blur):} Tạo kernel chuyển động theo chiều dài và góc cho trước.
+\textbf{Nhòe chuyển động (Motion Blur):}
+
+Tạo kernel chuyển động theo chiều dài và góc cho trước.
 
 \textbf{Nhiễu loạn khí quyển (Atmospheric Turbulence):}
 \begin{equation}
@@ -453,11 +495,15 @@ Trong đó mỗi $H_k$ là bộ lọc thông cao tập trung tại tần số nh
 
 \section{Xử lý hình thái học (Morphological Processing)}
 
+Các phép toán hình thái học làm việc trên ảnh nhị phân (binary) hoặc grayscale với phần tử cấu trúc (structuring element - SE).
+
 \subsection{Phép co (Erosion)}
 
 \begin{equation}
     A \ominus B = \{z | (B)_z \subseteq A\}
 \end{equation}
+
+Co làm thu nhỏ các vùng sáng, loại bỏ các chi tiết nhỏ.
 
 \subsection{Phép dãn (Dilation)}
 
@@ -465,17 +511,31 @@ Trong đó mỗi $H_k$ là bộ lọc thông cao tập trung tại tần số nh
     A \oplus B = \{z | (\hat{B})_z \cap A \neq \emptyset\}
 \end{equation}
 
+Dãn làm mở rộng các vùng sáng, lấp đầy các lỗ nhỏ.
+
 \subsection{Phép mở (Opening)}
 
 \begin{equation}
     A \circ B = (A \ominus B) \oplus B
 \end{equation}
 
+Mở = Co rồi Dãn. Loại bỏ các chi tiết sáng nhỏ hơn SE trong khi giữ nguyên hình dạng tổng thể.
+
 \subsection{Phép đóng (Closing)}
 
 \begin{equation}
     A \bullet B = (A \oplus B) \ominus B
 \end{equation}
+
+Đóng = Dãn rồi Co. Lấp đầy các lỗ nhỏ và kết nối các vùng gần nhau.
+
+\textbf{Các phép toán nâng cao đã implement:}
+\begin{itemize}
+    \item Gradient hình thái học
+    \item Top-hat và Black-hat transform
+    \item Trích xuất biên (Boundary extraction)
+    \item Tạo bộ xương (Skeletonization)
+\end{itemize}
 
 \section{Phân đoạn ảnh (Image Segmentation)}
 
@@ -487,34 +547,95 @@ Trong đó mỗi $H_k$ là bộ lọc thông cao tập trung tại tần số nh
 
 \subsection{Phân ngưỡng Otsu (Otsu's Method)}
 
-Tối đa hóa phương sai giữa các lớp:
+Phương pháp Otsu tự động tìm ngưỡng tối ưu bằng cách tối đa hóa phương sai giữa các lớp (between-class variance):
 \begin{equation}
     \sigma_B^2(t) = \omega_0(t)\omega_1(t)[\mu_0(t) - \mu_1(t)]^2
 \end{equation}
 
 Ngưỡng tối ưu: $T^* = \arg\max_t \sigma_B^2(t)$
 
+\subsection{Phân ngưỡng thích nghi (Adaptive Thresholding)}
+
+Tính ngưỡng riêng cho từng vùng nhỏ trong ảnh, phù hợp với ảnh có độ sáng không đồng đều.
+
+\subsection{Phân cụm K-Means (K-Means Clustering)}
+
+Thuật toán phân cụm không giám sát chia ảnh thành $K$ vùng dựa trên đặc trưng màu sắc:
+
+\begin{enumerate}
+    \item Khởi tạo $K$ tâm cụm ngẫu nhiên
+    \item Gán mỗi pixel vào cụm có tâm gần nhất
+    \item Cập nhật tâm cụm
+    \item Lặp lại bước 2-3 đến khi hội tụ
+\end{enumerate}
+
+\subsection{Phân đoạn Watershed}
+
+Thuật toán watershed xem ảnh như một bề mặt địa hình và ``ngập nước'' từ các điểm cực tiểu. Các đường phân thủy tạo thành biên giới giữa các vùng.
+
+\subsection{Phát triển vùng (Region Growing)}
+
+Bắt đầu từ một điểm hạt giống (seed point), thuật toán mở rộng vùng bằng cách thêm các pixel lân cận có cường độ tương tự:
+
+\begin{itemize}
+    \item Kiểm tra 4-connected hoặc 8-connected neighbors
+    \item So sánh cường độ với ngưỡng cho phép
+    \item Lặp lại cho đến khi không còn pixel nào thỏa mãn
+\end{itemize}
+
 \section{Nén ảnh (Image Compression)}
 
-\subsection{Biến đổi DCT 2D}
+\subsection{Nén không mất dữ liệu (Lossless Compression)}
 
+\textbf{Mã hóa Huffman:}
+
+Xây dựng mã có độ dài thay đổi dựa trên tần suất xuất hiện của các ký hiệu. Ký hiệu xuất hiện nhiều hơn được gán mã ngắn hơn.
+
+\textbf{Mã hóa Run-Length (RLC):}
+
+Biểu diễn chuỗi các giá trị giống nhau liên tiếp bằng cặp (giá trị, số lần lặp).
+
+\subsection{Nén mất dữ liệu - JPEG/DCT}
+
+Ứng dụng mô phỏng quy trình nén JPEG để giáo dục:
+
+\textbf{Bước 1: Chia ảnh thành các khối 8×8}
+
+\textbf{Bước 2: Biến đổi DCT 2D}
+
+Biến đổi Cosine rời rạc chuyển khối pixel sang miền tần số:
 \begin{equation}
     F(u,v) = \frac{1}{4}C(u)C(v)\sum_{x=0}^{7}\sum_{y=0}^{7}f(x,y)\cos\frac{(2x+1)u\pi}{16}\cos\frac{(2y+1)v\pi}{16}
 \end{equation}
 
-\subsection{Lượng tử hóa}
+\textbf{Bước 3: Lượng tử hóa}
 
+Chia các hệ số DCT cho bảng lượng tử hóa JPEG chuẩn và làm tròn:
 \begin{equation}
     F_Q(u,v) = \text{round}\left(\frac{F(u,v)}{Q(u,v)}\right)
 \end{equation}
 
-\section{Nhận dạng khuôn mặt với PCA}
+\textbf{Bước 4: Mã hóa Zig-zag}
+
+Sắp xếp các hệ số theo đường zig-zag để nhóm các hệ số gần 0 về cuối, thuận tiện cho RLC.
+
+\textbf{Chức năng demo đã implement:}
+\begin{itemize}
+    \item Trực quan hóa từng bước DCT
+    \item Điều chỉnh chất lượng nén (1-100)
+    \item Phân tích khối 8×8 bất kỳ bằng click chuột
+    \item So sánh ảnh gốc và ảnh sau nén
+\end{itemize}
+
+\section{Nhận dạng khuôn mặt với PCA (Face Recognition using PCA)}
 
 \subsection{Phân tích thành phần chính (PCA)}
 
+PCA là kỹ thuật giảm chiều dữ liệu bằng cách tìm các hướng (principal components) có phương sai lớn nhất.
+
 \textbf{Các bước thực hiện:}
 \begin{enumerate}
-    \item \textbf{Chuẩn hóa dữ liệu:} Tính khuôn mặt trung bình và trừ đi từ mỗi ảnh:
+    \item \textbf{Chuẩn hóa dữ liệu:} Tính khuôn mặt trung bình (mean face) và trừ đi từ mỗi ảnh:
     \begin{equation}
         \Phi_i = \Gamma_i - \Psi
     \end{equation}
@@ -528,12 +649,30 @@ Ngưỡng tối ưu: $T^* = \arg\max_t \sigma_B^2(t)$
 
 \subsection{Eigenfaces}
 
-Mỗi khuôn mặt có thể được biểu diễn như tổ hợp tuyến tính của các eigenfaces:
+Eigenfaces là các eigenvector của ma trận hiệp phương sai, đại diện cho các đặc trưng cơ bản của khuôn mặt. Mỗi khuôn mặt có thể được biểu diễn như tổ hợp tuyến tính của các eigenfaces:
 \begin{equation}
     \Gamma = \Psi + \sum_{i=1}^{K} w_i u_i
 \end{equation}
 
-Trong đó $w_i$ là trọng số và $u_i$ là eigenface thứ $i$.
+Trong đó $w_i$ là trọng số (weights) và $u_i$ là eigenface thứ $i$.
+
+\subsection{Tái tạo khuôn mặt (Face Reconstruction)}
+
+Cho phép tái tạo khuôn mặt với số lượng thành phần chính khác nhau để quan sát:
+
+\begin{itemize}
+    \item Với ít thành phần: Ảnh mờ, chỉ giữ đặc trưng chung
+    \item Với nhiều thành phần: Ảnh chi tiết hơn, gần với ảnh gốc
+\end{itemize}
+
+\textbf{Chức năng đã implement:}
+\begin{itemize}
+    \item Tải bộ dữ liệu khuôn mặt từ cấu trúc thư mục
+    \item Tính toán và hiển thị mean face
+    \item Hiển thị các eigenfaces
+    \item Tái tạo khuôn mặt với số thành phần tùy chỉnh
+    \item So sánh ảnh gốc và ảnh tái tạo
+\end{itemize}
 
 % ===== CHAPTER 3: DEMO =====
 \chapter{Demo ứng dụng}
@@ -671,7 +810,7 @@ Tab Compression mô phỏng quy trình nén JPEG với khả năng phân tích t
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.9\textwidth]{screenshots/dct_block_analysis.png}
-    \caption{Nén ảnh}
+    \caption{Phân tích DCT của khối 8×8}
 \end{figure}
 
 \section{Nhận dạng khuôn mặt PCA}
@@ -720,17 +859,17 @@ Tab PCA Face Recognition thực hiện nhận dạng khuôn mặt sử dụng ph
         \hline
         \textbf{Thư viện} & \textbf{Phiên bản} & \textbf{Mục đích sử dụng} \\
         \hline
-        PySide6 & 6.10.1 & Framework GUI - Qt6 bindings cho Python, xây dựng giao diện đồ họa \\
+        PySide6 & 6.10.1 & Framework GUI (Qt6 bindings for Python) \\
         \hline
         OpenCV & 4.11.0 & Xử lý ảnh cơ bản và nâng cao \\
         \hline
         NumPy & 2.3.5 & Tính toán ma trận và số học \\
         \hline
-        SciPy & 1.16.3 & Thuật toán khoa học, xử lý tín hiệu, nội suy \\
+        SciPy & 1.16.3 & Các thuật toán khoa học (filters, signal processing) \\
         \hline
-        scikit-image & 0.25.2 & Thuật toán xử lý ảnh bổ sung \\
+        scikit-image & 0.25.2 & Các thuật toán xử lý ảnh bổ sung \\
         \hline
-        scikit-learn & 1.7.2 & Machine learning (K-Means) \\
+        scikit-learn & 1.7.2 & Machine learning (K-Means clustering) \\
         \hline
         Matplotlib & 3.10.7 & Vẽ biểu đồ và histogram \\
         \hline
@@ -740,6 +879,14 @@ Tab PCA Face Recognition thực hiện nhận dạng khuôn mặt sử dụng ph
         \hline
     \end{tabular}
 \end{table}
+
+\section{Công cụ phát triển}
+
+\begin{itemize}
+    \item \textbf{Visual Studio Code} - IDE chính
+    \item \textbf{Git} - Quản lý phiên bản
+    \item \textbf{uv} - Python package manager
+\end{itemize}
 
 \section{Kiến trúc phần mềm}
 
@@ -771,18 +918,20 @@ computer-vision-app/
 
 \section{Những kiến thức đã học được}
 
+Thông qua việc xây dựng ứng dụng này, em đã thu được nhiều kiến thức và kỹ năng quý báu:
+
 \subsection{Về mặt lý thuyết}
 
 \begin{enumerate}
     \item \textbf{Hiểu sâu về biểu diễn ảnh số:} Cách máy tính lưu trữ và xử lý ảnh, ý nghĩa của từng pixel và các không gian màu khác nhau.
     
-    \item \textbf{Nắm vững các phép biến đổi điểm ảnh:} Hiểu rõ tác động của các hàm biến đổi (log, gamma, histogram equalization) lên chất lượng ảnh.
+    \item \textbf{Nắm vững các phép biến đổi điểm ảnh:} Hiểu rõ tác động của các hàm biến đổi (log, gamma, histogram equalization) lên chất lượng hình ảnh.
     
-    \item \textbf{Phân biệt xử lý miền không gian và miền tần số:} Khi nào nên dùng bộ lọc spatial, khi nào nên chuyển sang frequency domain.
+    \item \textbf{Phân biệt xử lý miền không gian và miền tần số:} Khi nào nên dùng bộ lọc spatial, khi nào nên chuyển sang frequency domain để xử lý hiệu quả hơn.
     
-    \item \textbf{Hiểu nguyên lý thuật toán phân đoạn:} Từ phương pháp đơn giản (thresholding) đến phức tạp (K-Means).
+    \item \textbf{Hiểu nguyên lý các thuật toán phân đoạn:} Từ phương pháp đơn giản (thresholding) đến phức tạp (K-Means clustering).
     
-    \item \textbf{Nắm được quy trình nén JPEG:} Tại sao DCT được sử dụng, vai trò của bảng lượng tử hóa.
+    \item \textbf{Nắm được quy trình nén JPEG:} Tại sao DCT được sử dụng, vai trò của bảng lượng tử hóa, và cách zig-zag encoding tối ưu hóa việc nén.
     
     \item \textbf{Hiểu PCA và ứng dụng trong nhận dạng:} Eigenfaces là một ứng dụng tuyệt vời của đại số tuyến tính trong computer vision.
 \end{enumerate}
@@ -790,10 +939,15 @@ computer-vision-app/
 \subsection{Về mặt thực hành}
 
 \begin{enumerate}
-    \item \textbf{Kỹ năng lập trình Python nâng cao:} Sử dụng NumPy hiệu quả cho tính toán ma trận.
-    \item \textbf{Thiết kế giao diện người dùng:} Xây dựng GUI responsive với PySide6/Qt6.
-    \item \textbf{Kiến trúc phần mềm:} Tổ chức code theo module, tách biệt logic và giao diện.
-    \item \textbf{Xử lý bất đồng bộ:} Sử dụng worker threads để không block UI.
+    \item \textbf{Kỹ năng lập trình Python nâng cao:} Sử dụng NumPy một cách hiệu quả cho tính toán ma trận, vectorization thay vì loop.
+    
+    \item \textbf{Thiết kế giao diện người dùng:} Xây dựng GUI responsive với PySide6/Qt6, xử lý events và signals.
+    
+    \item \textbf{Kiến trúc phần mềm:} Tổ chức code theo module, tách biệt logic xử lý và giao diện.
+    
+    \item \textbf{Xử lý bất đồng bộ:} Sử dụng worker threads để không block UI khi xử lý ảnh lớn.
+    
+    \item \textbf{Debug và tối ưu:} Học cách profile code, tìm bottleneck và tối ưu performance.
 \end{enumerate}
 
 \section{Khó khăn và giải pháp}
@@ -817,7 +971,7 @@ computer-vision-app/
 
 \section{Lời kết}
 
-Dự án này không chỉ giúp em củng cố kiến thức lý thuyết từ môn học mà còn rèn luyện khả năng áp dụng kiến thức vào thực tế. Việc tự tay implement các thuật toán đã giúp em hiểu sâu hơn về bản chất của xử lý ảnh. Em xin chân thành cảm ơn giảng viên đã hướng dẫn và tạo điều kiện để em hoàn thành dự án này.
+Dự án này không chỉ giúp em củng cố kiến thức lý thuyết từ môn học mà còn rèn luyện khả năng áp dụng kiến thức vào thực tế. Việc tự tay implement các thuật toán đã giúp em hiểu sâu hơn về bản chất của xử lý ảnh, thay vì chỉ sử dụng các hàm có sẵn từ thư viện. Em xin chân thành cảm ơn giảng viên đã hướng dẫn và tạo điều kiện để em hoàn thành dự án này.
 
 % ===== TÀI LIỆU THAM KHẢO =====
 \chapter*{Tài liệu tham khảo}
