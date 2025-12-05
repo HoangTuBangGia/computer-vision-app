@@ -23,23 +23,23 @@ _「那年冬天，以为同淋雪便可共白头」_
 
 ---
 
-## ✨ Features | Tính năng
+## Features | Tính năng
 
-### 🎨 Basic Operations | Thao tác cơ bản
+### Basic Operations | Thao tác cơ bản
 
 - **Image I/O | Đọc/Ghi ảnh**: Load and save images in multiple formats (PNG, JPG, BMP, TIFF, PGM) | Đọc và lưu ảnh với nhiều định dạng
 - **Color Conversions | Chuyển đổi màu**: RGB, Grayscale, HSV, LAB color spaces | Các không gian màu RGB, Xám, HSV, LAB
 - **Histogram Analysis | Phân tích Histogram**: View and analyze image histograms | Xem và phân tích biểu đồ histogram
 - **Histogram Equalization | Cân bằng Histogram**: Enhance image contrast | Tăng cường độ tương phản ảnh
 
-### 🔍 Filters & Enhancement | Bộ lọc & Cải thiện
+### Filters & Enhancement | Bộ lọc & Cải thiện
 
 - **Smoothing Filters | Bộ lọc làm mịn**: Gaussian, Median, Bilateral, Box blur | Làm mờ Gaussian, Trung vị, Bilateral, Box
 - **Sharpening | Làm sắc nét**: Laplacian, Unsharp masking | Laplacian, Mặt nạ unsharp
 - **Custom Kernels | Kernel tùy chỉnh**: Apply user-defined convolution kernels | Áp dụng kernel tích chập tùy chỉnh
 - **Live Preview | Xem trước trực tiếp**: Real-time filter preview with adjustable parameters | Xem trước bộ lọc theo thời gian thực
 
-### 🔲 Morphological Operations | Phép toán hình thái học
+### Morphological Operations | Phép toán hình thái học
 
 - **Basic Operations | Phép toán cơ bản**: Erosion, Dilation, Opening, Closing | Co, Giãn, Mở, Đóng
 - **Advanced | Nâng cao**: Gradient, Top-hat, Black-hat transforms | Gradient, Top-hat, Black-hat
@@ -47,27 +47,27 @@ _「那年冬天，以为同淋雪便可共白头」_
 - **Skeleton | Bộ xương**: Morphological skeletonization | Tạo bộ xương hình thái
 - **Customizable | Tùy chỉnh**: Rectangle, Ellipse, Cross structuring elements | Phần tử cấu trúc: Chữ nhật, Elip, Chữ thập
 
-### 📊 Frequency Domain | Miền tần số
+### Frequency Domain | Miền tần số
 
 - **FFT Analysis | Phân tích FFT**: 2D Fourier Transform visualization | Trực quan hóa biến đổi Fourier 2D
 - **Frequency Filters | Bộ lọc tần số**: Low-pass, High-pass, Band-pass, Band-stop | Thông thấp, Thông cao, Thông dải, Chắn dải
 - **Filter Types | Loại bộ lọc**: Ideal, Butterworth, Gaussian | Lý tưởng, Butterworth, Gaussian
 - **Interactive | Tương tác**: Adjustable cutoff frequencies and filter orders | Điều chỉnh tần số cắt và bậc bộ lọc
 
-### 🎯 Segmentation | Phân đoạn
+### Segmentation | Phân đoạn
 
 - **Thresholding | Ngưỡng hóa**: Otsu's automatic, Manual, Adaptive | Tự động Otsu, Thủ công, Thích nghi
 - **K-Means Clustering | Phân cụm K-Means**: Color-based image segmentation | Phân đoạn ảnh dựa trên màu sắc
 - **Live Preview | Xem trước trực tiếp**: Real-time threshold adjustment | Điều chỉnh ngưỡng theo thời gian thực
 
-### 👤 PCA & Face Recognition | PCA & Nhận dạng khuôn mặt
+### PCA & Face Recognition | PCA & Nhận dạng khuôn mặt
 
 - **Eigenfaces**: Principal Component Analysis for face recognition | Phân tích thành phần chính cho nhận dạng khuôn mặt
 - **Face Reconstruction | Tái tạo khuôn mặt**: Reconstruct faces with variable components | Tái tạo khuôn mặt với số thành phần thay đổi
 - **Dataset Support | Hỗ trợ bộ dữ liệu**: Load face datasets from folder structure | Tải bộ dữ liệu khuôn mặt từ cấu trúc thư mục
 - **Visualization | Trực quan hóa**: Mean face, Eigenfaces, Reconstruction comparison | Khuôn mặt trung bình, Eigenfaces, So sánh tái tạo
 
-### 📦 JPEG Compression | Nén JPEG
+### JPEG Compression | Nén JPEG
 
 - **DCT Visualization | Trực quan hóa DCT**: See Discrete Cosine Transform in action | Xem biến đổi Cosine rời rạc hoạt động
 - **Quantization | Lượng tử hóa**: Understand how JPEG compression works | Hiểu cách nén JPEG hoạt động
@@ -75,14 +75,14 @@ _「那年冬天，以为同淋雪便可共白头」_
 - **Quality Control | Điều khiển chất lượng**: Adjustable compression quality (1-100) | Điều chỉnh chất lượng nén (1-100)
 - **Block Analysis | Phân tích khối**: Click any 8×8 block to analyze | Nhấp vào bất kỳ khối 8×8 nào để phân tích
 
-### 📐 Geometric Transforms | Biến đổi hình học
+### Geometric Transforms | Biến đổi hình học
 
 - **Rotation | Xoay**: Rotate images with optional size preservation | Xoay ảnh với tùy chọn giữ kích thước
 - **Scaling | Co giãn**: Scale X/Y independently or linked | Co giãn X/Y độc lập hoặc liên kết
 - **Resize | Thay đổi kích thước**: Resize to specific dimensions | Thay đổi đến kích thước cụ thể
 - **Flip | Lật**: Horizontal, Vertical, or Both | Ngang, Dọc, hoặc Cả hai
 
-### 🔧 Image Restoration | Khôi phục ảnh
+### Image Restoration | Khôi phục ảnh
 
 - **Noise Models | Mô hình nhiễu**: Uniform, Rayleigh, Exponential | Nhiễu Đồng nhất, Rayleigh, Hàm mũ
 - **Degradation Models | Mô hình suy giảm**: Motion blur, Atmospheric turbulence | Nhòe chuyển động, Nhiễu loạn khí quyển
@@ -91,7 +91,7 @@ _「那年冬天，以为同淋雪便可共白头」_
 - **Adaptive Filters | Bộ lọc thích nghi**: Local noise reduction, Adaptive median | Giảm nhiễu cục bộ, Trung vị thích nghi
 - **Deconvolution | Khử chập**: Inverse filtering, Wiener filtering | Lọc nghịch đảo, Lọc Wiener
 
-### 🖼️ Advanced Viewer | Trình xem nâng cao
+### Advanced Viewer | Trình xem nâng cao
 
 - **Zoom & Pan | Thu phóng & Kéo**: Mouse wheel zoom, drag to pan | Cuộn chuột để zoom, kéo để di chuyển
 - **Synchronized View | Xem đồng bộ**: Original and processed images sync together | Ảnh gốc và ảnh xử lý đồng bộ với nhau
@@ -99,7 +99,7 @@ _「那年冬天，以为同淋雪便可共白头」_
 
 ---
 
-## 🚀 Installation | Cài đặt
+## Installation | Cài đặt
 
 ### Prerequisites | Yêu cầu
 
@@ -150,7 +150,7 @@ python main.py
 
 ---
 
-## 📖 Usage | Sử dụng
+## Usage | Sử dụng
 
 ### Loading Images | Tải ảnh
 
@@ -197,7 +197,7 @@ python main.py
 
 ---
 
-## 🏗️ Architecture | Kiến trúc
+## Architecture | Kiến trúc
 
 ```
 computer-vision-app/
@@ -246,7 +246,7 @@ computer-vision-app/
 
 ---
 
-## 🛠️ Development | Phát triển
+## Development | Phát triển
 
 ### Running Tests | Chạy Tests
 
@@ -273,7 +273,7 @@ uv run pyinstaller --onefile --windowed main.py
 
 ---
 
-## 🤝 Contributing | Đóng góp
+## Contributing | Đóng góp
 
 Contributions are welcome! Please follow these steps:
 
@@ -294,7 +294,7 @@ Mọi đóng góp đều được chào đón! Vui lòng làm theo các bước 
 
 ---
 
-## 📄 License | Giấy phép
+## License | Giấy phép
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
@@ -302,7 +302,7 @@ Dự án này được cấp phép theo giấy phép MIT - xem file [LICENSE](LI
 
 ---
 
-## 🙏 Acknowledgments | Lời cảm ơn
+## Acknowledgments | Lời cảm ơn
 
 - [OpenCV](https://opencv.org/) - Computer vision library | Thư viện thị giác máy tính
 - [Qt/PySide6](https://www.qt.io/) - GUI framework | Framework giao diện
